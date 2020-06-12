@@ -1,0 +1,187 @@
+{
+  "type": "record",
+  "name": "Prestation",
+  "namespace": "fr.laposte.intra.courrier.avro.priv.v1",
+  "fields": [
+    {
+      "name": "typePrestation",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "typeClient",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "particulier ou entreprise",
+      "default": null
+    },
+    {
+      "name": "prenomClient",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "numeroObjetContrat",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "nomClient",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "motifReclamation",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "libellePrestationProduit",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "idQL",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "id",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "etat",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "emailClient",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "dateEffet",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String",
+          "logicalType": "date"
+        }
+      ],
+      "doc": ""
+    },
+    {
+      "name": "dateDemandeDepot",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String",
+          "logicalType": "date"
+        }
+      ],
+      "doc": ""
+    },
+    {
+      "name": "coRegateEtab",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    },
+    {
+      "name": "canal",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "avro.java.string": "String"
+        }
+      ],
+      "doc": "",
+      "default": null
+    }
+  ]
+}
