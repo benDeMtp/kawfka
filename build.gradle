@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id 'idea'
+}
+
+group = "com.kawamind"
+version = "1.2-SNAPSHOT"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+task showRepos {
+    doLast {
+        println "All repos:"
+        println repositories.collect { it.name }
+    }
+}
+
+dependencies {
+    implementation 'org.apache.avro:avro:1.9.0'
+    implementation 'io.quarkus:quarkus-kafka-client'
+    implementation 'io.quarkus:quarkus-picocli'
+    implementation 'org.projectlombok:lombok:1.18.12'
+    implementation 'com.google.guava:guava:28.2-jre'
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation("com.google.code.gson:gson:2.8.6")
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    implementation 'io.confluent:common-config:5.2.1'
+    implementation 'io.confluent:kafka-schema-registry-client:5.2.1'
+    implementation 'io.confluent:kafka-avro-serializer:5.2.1'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
+
+
