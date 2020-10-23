@@ -4,16 +4,24 @@ import com.kawamind.kawfka.io.KawfkaCommon;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.DescribeTopicsResult;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.TopicPartition;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @CommandLine.Command(description = "Consomme des messages respectant un schéma", name = "consume")
@@ -42,9 +50,13 @@ public class KawfkaConsumer extends KawfkaCommon implements Runnable {
             kafkaConsumer = new KafkaConsumer(properties);
 
             if(groupId == null) {
-                kafkaConsumer.assign(Arrays.asList(new TopicPartition(topic, 0),
-                        new TopicPartition(topic, 1),
-                        new TopicPartition(topic, 2)));
+                try (AdminClient kafkaAdminClient = KafkaAdminClient.create(properties)) {
+                    final DescribeTopicsResult describeTopicsResult = kafkaAdminClient.describeTopics(Collections.singleton(topic));
+                    final Map<String, KafkaFuture<TopicDescription>> values = describeTopicsResult.values();
+                    final TopicDescription topicDescription = values.get(topic).get();
+                    final List<TopicPartition> partitions = topicDescription.partitions().stream().map(topicPartitionInfo -> new TopicPartition(topic, topicPartitionInfo.partition())).collect(Collectors.toList());
+                    kafkaConsumer.assign(partitions);
+                }
             }else{
                 System.out.println("Subscription");
                 kafkaConsumer.subscribe(Collections.singleton(topic));
