@@ -4,6 +4,7 @@ import com.kawamind.kawfka.io.KawfkaCommon;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -12,6 +13,7 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collections;
 
 
 @CommandLine.Command(description = "Consomme des messages respectant un schéma", name = "consume")
@@ -24,16 +26,29 @@ public class KawfkaConsumer extends KawfkaCommon implements Runnable {
     protected Integer count;
     KafkaConsumer<String, GenericRecord> kafkaConsumer;
 
+    @CommandLine.Option(description = "groupId à utiliser", names = {"-g", "--groupId"}, required = false)
+    private String groupId;
+
     @SneakyThrows
     @Override
     public void run() {
         if (!helpRequested) {
             initConfig();
+            if(groupId!=null){
+                properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.TRUE);
+                properties.put(ConsumerConfig.GROUP_ID_CONFIG,groupId);
+            }
+
             kafkaConsumer = new KafkaConsumer(properties);
 
-            kafkaConsumer.assign(Arrays.asList(new TopicPartition(topic, 0),
-                    new TopicPartition(topic, 1),
-                    new TopicPartition(topic, 2)));
+            if(groupId == null) {
+                kafkaConsumer.assign(Arrays.asList(new TopicPartition(topic, 0),
+                        new TopicPartition(topic, 1),
+                        new TopicPartition(topic, 2)));
+            }else{
+                System.out.println("Subscription");
+                kafkaConsumer.subscribe(Collections.singleton(topic));
+            }
 
             PrintStream out = null;
             if (output != null) {

@@ -28,9 +28,9 @@ import java.util.function.BiConsumer;
 public class Topics implements Runnable {
 
     @CommandLine.Option(names = {"--list"}, description = "Renvoi la liste des topics du broker")
-    private final boolean list = false;
+    private boolean list = false;
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "display a help message")
-    private final boolean helpRequested = false;
+    private boolean helpRequested = false;
     @Inject
     Configuration configuration;
     @CommandLine.ArgGroup(exclusive = false)
@@ -160,11 +160,11 @@ public class Topics implements Runnable {
 
     static class SeekOption {
         @CommandLine.Option(names = {"--toEnd"}, required = false)
-        private final boolean toEnd = false;
+        private boolean toEnd = false;
         @CommandLine.Option(names = {"--toBeginning"}, required = false)
-        private final boolean toBeginning = false;
+        private boolean toBeginning = false;
         @CommandLine.Option(names = {"--partitionId"}, required = true)
-        private final Integer partitionId = null;
+        private Integer partitionId = null;
         @CommandLine.Option(paramLabel = "TOPIC NAME", names = {"--seek", "-s"}, description = "Déplace l'offset sur une partition d'un topic", required = true)
         private String seek;
 
