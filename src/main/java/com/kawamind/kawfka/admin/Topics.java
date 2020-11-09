@@ -28,9 +28,9 @@ import java.util.function.BiConsumer;
 public class Topics implements Runnable {
 
     @CommandLine.Option(names = {"--list"}, description = "Renvoi la liste des topics du broker")
-    private boolean list = false;
+    private final boolean list = false;
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "display a help message")
-    private boolean helpRequested = false;
+    private final boolean helpRequested = false;
     @Inject
     Configuration configuration;
     @CommandLine.ArgGroup(exclusive = false)
@@ -73,17 +73,24 @@ public class Topics implements Runnable {
                         }
                     }
 
-                    //consumer.assign(partitions);
                     final Map<TopicPartition, OffsetAndMetadata> partitionsAndOffset = new HashMap<>();
-                    final BiConsumer<TopicPartition, Long> topicPartitionLongBiConsumer = (topicPartition1, aLong) -> {
-                        OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(aLong);
-                        partitionsAndOffset.put(topicPartition1, offsetAndMetadata);
-                    };
+                    if (seekOption.toBeginning || seekOption.toEnd) {
+                        //consumer.assign(partitions);
+                        final BiConsumer<TopicPartition, Long> topicPartitionLongBiConsumer = (topicPartition1, aLong) -> {
+                            OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(aLong);
+                            partitionsAndOffset.put(topicPartition1, offsetAndMetadata);
+                        };
 
-                    if (seekOption.toEnd)
-                        consumer.endOffsets(partitions).forEach(topicPartitionLongBiConsumer);
-                    if (seekOption.toBeginning)
-                        consumer.beginningOffsets(partitions).forEach(topicPartitionLongBiConsumer);
+                        if (seekOption.toEnd)
+                            consumer.endOffsets(partitions).forEach(topicPartitionLongBiConsumer);
+                        if (seekOption.toBeginning)
+                            consumer.beginningOffsets(partitions).forEach(topicPartitionLongBiConsumer);
+                    } else if (Objects.nonNull(seekOption.toOffset) && Objects.nonNull(seekOption.partitionId)) {
+                        log.warn("Déplace l'offset de la partition " + seekOption.partitionId + " sur l'offset " + seekOption.toOffset);
+                        OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(seekOption.toOffset);
+                        TopicPartition topicPartition = new TopicPartition(seekOption.seek, seekOption.partitionId);
+                        partitionsAndOffset.put(topicPartition, offsetAndMetadata);
+                    }
 
                     consumer.commitSync(partitionsAndOffset);
                 } catch (Exception e) {
@@ -160,13 +167,15 @@ public class Topics implements Runnable {
 
     static class SeekOption {
         @CommandLine.Option(names = {"--toEnd"}, required = false)
-        private boolean toEnd = false;
+        private final boolean toEnd = false;
         @CommandLine.Option(names = {"--toBeginning"}, required = false)
-        private boolean toBeginning = false;
-        @CommandLine.Option(names = {"--partitionId"}, required = true)
-        private Integer partitionId = null;
+        private final boolean toBeginning = false;
+        @CommandLine.Option(names = {"--partitionId"}, required = false)
+        private final Integer partitionId = null;
         @CommandLine.Option(paramLabel = "TOPIC NAME", names = {"--seek", "-s"}, description = "Déplace l'offset sur une partition d'un topic", required = true)
         private String seek;
+        @CommandLine.Option(names = {"--offset", "-o"}, description = "Specifie l'offset sur lequel se placer. --partitionId doit être spécifié", required = true)
+        private Long toOffset;
 
     }
 

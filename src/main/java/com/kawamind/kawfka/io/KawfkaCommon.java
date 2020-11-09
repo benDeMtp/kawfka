@@ -4,7 +4,6 @@ import com.kawamind.kawfka.config.Configuration;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import org.apache.avro.Schema;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -14,7 +13,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import picocli.CommandLine;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,9 +26,7 @@ public class KawfkaCommon {
     @CommandLine.Option(description = "topic to send / read messages", names = {"-t", "--topic"}, required = true)
     protected String topic;
 
-    protected Schema schema;
-
-    protected void initConfig() throws IOException {
+    protected void initConfig() {
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -43,11 +39,14 @@ public class KawfkaCommon {
         properties.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, Boolean.FALSE);
         if (configuration.isSsl()) {
             properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
-            //TODO test if keystore is present
-            properties.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, configuration.getKeyStoreLocation().get());
-            properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, configuration.getKeyStoreLocation().get());
-            properties.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, configuration.getKeyStorePassword().get());
-            properties.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, configuration.getKeyStorePassword().get());
+            if (configuration.getKeyStoreLocation().isPresent() && configuration.getKeyStorePassword().isPresent()) {
+                properties.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, configuration.getKeyStoreLocation().get());
+                properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, configuration.getKeyStoreLocation().get());
+                properties.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, configuration.getKeyStorePassword().get());
+                properties.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, configuration.getKeyStorePassword().get());
+            } else {
+                throw new RuntimeException("Security parameters are not set. Verify your KeyStoreLocation and your KeyStorePassword");
+            }
         }
     }
 
